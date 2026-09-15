@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>💵 TRACKER — Aayushi Dobaria</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap');
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: #FBE8ED;
+    color: #3D1F2E;
+    padding: 32px 16px 60px;
+  }
+  h1, h2, h3 { font-family: 'Lora', serif; margin: 0; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  .header-row { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+  .title { font-weight: 600; font-size: 30px; }
+  .subtitle { margin: 6px 0 0; color: #8C5B6E; font-size: 14px; }
+  .backup-buttons { display: flex; gap: 8px; }
+  .btn-ghost {
+    border: 1px solid #F0BCC9; background: #FFFFFFAA; color: #3D1F2E;
+    border-radius: 4px; padding: 7px 12px; font-size: 12.5px; font-weight: 600;
+    cursor: pointer; font-family: 'Inter', sans-serif; white-space: nowrap;
+  }
+  .btn-ghost .short-label { display: none; }
+  .tabs {
+    display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: nowrap;
+    overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex: 0 0 auto; display: flex; align-items: center; gap: 6px; border: none; padding: 10px 16px; border-radius: 8px; white-space: nowrap;
+    font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;
+    background: var(--tab-tint); color: var(--tab-color); transition: background 0.15s, color 0.15s;
+  }
+  .tab-icon { font-size: 15px; line-height: 1; }
+  .tab-btn.active { background: var(--tab-color); color: #FFFFFF; }
+  .tab-btn[data-tab="overview"] { --tab-color: #1E8F71; --tab-tint: #DCF3EC; }
+  .tab-btn[data-tab="budgets"] { --tab-color: #7C4DFF; --tab-tint: #E8E1FF; }
+  .tab-btn[data-tab="balances"] { --tab-color: #E2703A; --tab-tint: #FBE2D3; }
+  .tab-btn[data-tab="tenants"] { --tab-color: #2F6FA8; --tab-tint: #DCEAF5; }
+  .card { border: 1px solid #F0BCC9; border-radius: 6px; padding: 16px; margin-bottom: 28px; background: #FFFFFFAA; }
+  .field label { display: block; font-size: 11.5px; color: #A9748A; font-weight: 500; margin-bottom: 4px; }
+  .field input, .field select {
+    width: 100%; border: 1px solid #F0BCC9; border-radius: 4px; padding: 8px 10px;
+    font-size: 13px; font-family: 'Inter', sans-serif; background: #fff; color: #3D1F2E; outline: none;
+  }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .type-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
+  .type-btn {
+    flex: 1; padding: 8px 0; border-radius: 4px; font-weight: 600; font-size: 13px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px; background: transparent;
+  }
+  .type-btn.expense { border: 1px solid #E2703A; color: #E2703A; }
+  .type-btn.expense.active { background: #E2703A; color: #FBE8ED; }
+  .type-btn.income { border: 1px solid #1E8F71; color: #1E8F71; }
+  .type-btn.income.active { background: #1E8F71; color: #FBE8ED; }
+  .btn-add {
+    border: none; background: #3D1F2E; color: #FBE8ED; border-radius: 4px; padding: 9px 20px;
+    font-weight: 600; font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif;
+  }
+  .error-text { color: #E2703A; font-size: 12.5px; margin: 8px 0 0; }
+  .period-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+  .period-left { display: flex; gap: 10px; align-items: center; }
+  select.month-select {
+    border: 1px solid #F0BCC9; border-radius: 4px; padding: 7px 10px; font-size: 13px;
+    font-family: 'Inter', sans-serif; background: #fff; color: #3D1F2E;
+  }
+  .year-box { display: flex; align-items: center; gap: 4px; border: 1px solid #F0BCC9; border-radius: 4px; background: #fff; }
+  .year-arrow { border: none; background: none; cursor: pointer; color: #8C5B6E; padding: 6px 8px; font-size: 14px; }
+  .year-input {
+    width: 56px; border: none; text-align: center; font-size: 13px; font-family: 'Inter', sans-serif;
+    outline: none; font-variant-numeric: tabular-nums;
+  }
+  .year-input::-webkit-outer-spin-button, .year-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .year-input { -moz-appearance: textfield; }
+  .view-toggle { display: flex; gap: 6px; background: #FDEAF0; padding: 4px; border-radius: 6px; border: 1px solid #F0BCC9; }
+  .view-btn {
+    border: none; padding: 6px 14px; border-radius: 4px; background: transparent; color: #3D1F2E;
+    font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'Inter', sans-serif;
+  }
+  .view-btn.active { background: #3D1F2E; color: #FBE8ED; }
+  .totals-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid #3D1F2E;
+    border-bottom: 1px solid #3D1F2E; padding: 16px 0; margin-bottom: 32px;
+  }
+  .totals-row.four { grid-template-columns: repeat(4, 1fr); }
+  .stat-label { font-size: 12.5px; color: #8C5B6E; margin-bottom: 4px; }
+  .stat-value { font-family: 'Lora', serif; font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .section-head { font-size: 17px; font-weight: 600; margin: 0 0 12px; }
+  .chart-wrap { display: flex; align-items: flex-end; gap: 4px; height: 144px; border-bottom: 1px solid #3D1F2E; padding-top: 12px; }
+  .chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; }
+  .chart-bars { display: flex; align-items: flex-end; gap: 2px; height: 120px; }
+  .chart-bar { width: 7px; border-radius: 2px 2px 0 0; }
+  .chart-month-label { font-size: 10px; color: #8C5B6E; margin-top: 6px; }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: #8C5B6E; }
+  .swatch { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; }
+  .entry-row {
+    display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid #F6D5DE; font-size: 13.5px;
+  }
+  .entry-date { width: 70px; color: #8C5B6E; flex-shrink: 0; }
+  .entry-main { flex: 1; min-width: 0; }
+  .entry-cat { font-weight: 500; }
+  .entry-sub { color: #A9748A; font-size: 12px; }
+  .entry-amt { width: 100px; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .del-btn { border: none; background: none; cursor: pointer; color: #8C5B6E; padding: 4px; font-size: 14px; }
+  .table-head, .table-row {
+    display: grid; padding: 6px 0; font-size: 12px; color: #8C5B6E; border-bottom: 1px solid #F0BCC9;
+  }
+  .table-row { padding: 9px 0; font-size: 13px; color: #3D1F2E; border-bottom: 1px solid #F6D5DE; }
+  .col-4 { grid-template-columns: 1.2fr 0.8fr 1fr 1fr; }
+  .col-5 { grid-template-columns: 1.2fr 0.8fr 1fr 1fr 1fr; }
+  .col-acct { grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; }
+  .col-rent { grid-template-columns: 1.4fr 1fr 1fr 1fr; }
+  .col-budget { grid-template-columns: 1.3fr 1fr 1fr 1fr; }
+  .ta-r { text-align: right; }
+  .muted { color: #8C5B6E; font-size: 14px; }
+  .budget-row-wrap { padding: 10px 0; border-bottom: 1px solid #F6D5DE; }
+  .budget-progress { background: #FDEAF0; border-radius: 3px; height: 6px; margin-top: 6px; overflow: hidden; }
+  .budget-progress-fill { height: 100%; border-radius: 3px; }
+  .budget-input {
+    width: 84px; text-align: right; padding: 5px 8px; border: 1px solid #F0BCC9; border-radius: 4px;
+    font-size: 13px; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums;
+  }
+  .balance-input {
+    width: 90px; text-align: right; padding: 5px 8px; border: 1px solid #F0BCC9; border-radius: 4px;
+    font-size: 13px; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums;
+  }
+  input[type="file"] { display: none; }
+  @media (max-width: 480px) {
+    body { padding: 16px 10px 48px; }
+    .grid2 { grid-template-columns: 1fr; }
+    .totals-row.four { grid-template-columns: repeat(2, 1fr); row-gap: 14px; }
+    .title { font-size: 22px; }
+    .header-row { flex-wrap: nowrap; align-items: flex-start; }
+    .backup-buttons { flex-direction: column; flex-shrink: 0; }
+    .btn-ghost { padding: 6px 10px; font-size: 11px; }
+    .btn-ghost .full-label { display: none; }
+    .btn-ghost .short-label { display: inline; }
+    .tabs { justify-content: space-between; }
+    .tab-btn { flex: 1; flex-direction: column; padding: 8px 2px; border-radius: 10px; gap: 2px; }
+    .tab-icon { font-size: 18px; }
+    .tab-label { font-size: 9.5px; }
+    .table-head, .table-row { font-size: 11px; }
+    .col-acct, .col-5, .col-budget, .col-rent { column-gap: 3px; }
+    .balance-input, .budget-input { width: 100%; min-width: 0; padding: 4px; font-size: 11px; }
+    .entry-date { width: 54px; font-size: 12px; }
+    .entry-amt { width: 78px; font-size: 12px; }
+    .entry-sub { font-size: 11px; }
+    .stat-value { font-size: 19px; }
+    .year-input { width: 56px; }
+    .period-row { gap: 6px; margin-bottom: 14px; }
+    .period-left { gap: 6px; }
+    .month-select { padding: 5px 6px !important; font-size: 12px !important; }
+    .year-arrow { padding: 4px 6px !important; font-size: 12px !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header-row">
+    <div>
+      <div class="title">💵 TRACKER</div>
+      <p class="subtitle">Aayushi Dobaria</p>
+    </div>
+    <div class="backup-buttons">
+      <button class="btn-ghost" id="exportBtn"><span class="full-label">Download backup</span><span class="short-label">Backup</span></button>
+      <button class="btn-ghost" id="restoreBtn"><span class="full-label">Restore backup</span><span class="short-label">Restore</span></button>
+      <input type="file" id="restoreFile" accept="application/json" />
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="overview"><span class="tab-icon">📊</span><span class="tab-label">Overview</span></button>
+    <button class="tab-btn" data-tab="budgets"><span class="tab-icon">🎯</span><span class="tab-label">Budgets</span></button>
+    <button class="tab-btn" data-tab="balances"><span class="tab-icon">💰</span><span class="tab-label">Balances</span></button>
+    <button class="tab-btn" data-tab="tenants"><span class="tab-icon">🏠</span><span class="tab-label">Tenants</span></button>
+  </div>
+
+  <div id="content"></div>
+</div>
+
+<script>
+// ---------- Constants ----------
+const ACCOUNTS = ["Axis Bank", "Indian Bank", "Cash", "Stock Market", "Investment/Savings"];
+const INCOME_CATEGORIES = ["Salary", "Valsad Rent", "Investment", "Miscellaneous"];
+const EXPENSE_CATEGORIES = ["PG Rent", "Groceries", "Food", "Transportation", "Personal", "Home", "Miscellaneous"];
+const MONEY_USED_OPTIONS = ["Salary", "Valsad Rent", "Miscellaneous"];
+const TENANTS = ["Tenant 1", "Tenant 2", "Tenant 3", "Tenant 4", "Tenant 5"];
+const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DEFAULT_BUDGETS = { "PG Rent": 11000, "Groceries": 3000, "Transportation": 500, "Personal": 500, "Home": 15000, "Miscellaneous": 500, "Food": 1000 };
+
+const LS_KEYS = {
+  transactions: "tracker_transactions",
+  openingBalances: "tracker_openingBalances",
+  budgets: "tracker_budgets",
+  rentPayments: "tracker_rentPayments",
+  tenantNames: "tracker_tenantNames",
+};
+
+// ---------- State ----------
+const now = new Date();
+let state = {
+  transactions: loadLS(LS_KEYS.transactions, []),
+  openingBalances: loadLS(LS_KEYS.openingBalances, {}),
+  budgets: loadLS(LS_KEYS.budgets, DEFAULT_BUDGETS),
+  rentPayments: loadLS(LS_KEYS.rentPayments, []),
+  tenantNames: loadLS(LS_KEYS.tenantNames, [...TENANTS]),
+  tab: "overview",
+  view: "month",
+  selMonth: now.getMonth(),
+  selYear: now.getFullYear(),
+};
+
+// Remembers the last-used values in the add-entry forms so they don't
+// reset every time you add something (only category/amount/note clear).
+let txFormDefaults = { type: "expense", account: ACCOUNTS[0], moneyUsed: MONEY_USED_OPTIONS[0], date: todayStr() };
+let rentFormDefaults = { tenant: state.tenantNames[0], date: todayStr() };
+
+// ---------- Helpers ----------
+function loadLS(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    return JSON.parse(raw);
+  } catch (e) {
+    return fallback;
+  }
+}
+function saveLS(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (e) {
+    alert("Couldn't save your data — your browser storage may be full or blocked.");
+  }
+}
+function parseLocalDate(str) {
+  const [y, m, d] = str.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+function todayStr() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+function fmt(n) {
+  n = n || 0;
+  const sign = n < 0 ? "-" : "";
+  return sign + "₹" + Math.abs(n).toLocaleString("en-IN", { maximumFractionDigits: 3, minimumFractionDigits: 0 });
+}
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+// ---------- Derived data ----------
+function getMonthTx() {
+  return state.transactions.filter((t) => {
+    const d = parseLocalDate(t.date);
+    return d.getFullYear() === state.selYear && d.getMonth() === state.selMonth;
+  });
+}
+function getYearTx() {
+  return state.transactions.filter((t) => parseLocalDate(t.date).getFullYear() === state.selYear);
+}
+function getScopedTx() {
+  return state.view === "month" ? getMonthTx() : getYearTx();
+}
+function totalsOf(list) {
+  let income = 0, expense = 0;
+  list.forEach((t) => { if (t.type === "income") income += t.amount; else expense += t.amount; });
+  return { income, expense, net: income - expense };
+}
+function monthlyChartData() {
+  const yearTx = getYearTx();
+  return MONTH_NAMES.map((name, idx) => {
+    let income = 0, expense = 0;
+    yearTx.forEach((t) => {
+      if (parseLocalDate(t.date).getMonth() === idx) {
+        if (t.type === "income") income += t.amount; else expense += t.amount;
+      }
+    });
+    return { name, income, expense };
+  });
+}
+
+function yearlyChartData() {
+  const yearsInData = state.transactions.map((t) => parseLocalDate(t.date).getFullYear());
+  const years = Array.from(new Set([...yearsInData, state.selYear])).sort((a, b) => a - b);
+  return years.map((year) => {
+    let income = 0, expense = 0;
+    state.transactions.forEach((t) => {
+      if (parseLocalDate(t.date).getFullYear() === year) {
+        if (t.type === "income") income += t.amount; else expense += t.amount;
+      }
+    });
+    return { name: String(year), income, expense };
+  });
+}
+
+// Keeps the date fields in the add-entry forms lined up with whichever
+// month/year is currently selected, preserving the day-of-month where valid.
+function clampDay(year, month, day) {
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  return Math.min(day, lastDay);
+}
+function formatDate(year, month, day) {
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${year}-${pad(month + 1)}-${pad(day)}`;
+}
+function syncFormDatesToPeriod() {
+  const d1 = clampDay(state.selYear, state.selMonth, parseLocalDate(txFormDefaults.date).getDate());
+  txFormDefaults.date = formatDate(state.selYear, state.selMonth, d1);
+  const d2 = clampDay(state.selYear, state.selMonth, parseLocalDate(rentFormDefaults.date).getDate());
+  rentFormDefaults.date = formatDate(state.selYear, state.selMonth, d2);
+}
+function setPeriod(month, year) {
+  if (month !== undefined) state.selMonth = month;
+  if (year !== undefined) state.selYear = year;
+  syncFormDatesToPeriod();
+  render();
+}
+
+// ---------- Actions ----------
+function addTransaction() {
+  const category = document.getElementById("tx-category").value.trim();
+  const account = document.getElementById("tx-account").value;
+  const moneyUsed = document.getElementById("tx-moneyUsed").value;
+  const amount = parseFloat(document.getElementById("tx-amount").value);
+  const date = document.getElementById("tx-date").value;
+  const note = document.getElementById("tx-note").value.trim();
+  const type = document.querySelector(".type-btn.expense").classList.contains("active") ? "expense" : "income";
+  const errEl = document.getElementById("tx-error");
+
+  if (!category) { errEl.textContent = "Give this entry a category."; return; }
+  if (!account) { errEl.textContent = "Pick an account."; return; }
+  if (!moneyUsed) { errEl.textContent = "Pick where the money is used from."; return; }
+  if (!amount || amount <= 0) { errEl.textContent = "Enter an amount greater than zero."; return; }
+  if (!date) { errEl.textContent = "Pick a date."; return; }
+  errEl.textContent = "";
+
+  state.transactions.unshift({ id: uid(), type, category, account, moneyUsed, amount, date, note });
+  saveLS(LS_KEYS.transactions, state.transactions);
+
+  txFormDefaults = { type, account, moneyUsed, date };
+  const d = parseLocalDate(date);
+  state.selMonth = d.getMonth();
+  state.selYear = d.getFullYear();
+  render();
+}
+
+function deleteTransaction(id) {
+  state.transactions = state.transactions.filter((t) => t.id !== id);
+  saveLS(LS_KEYS.transactions, state.transactions);
+  render();
+}
+
+function addRent() {
+  const tenant = document.getElementById("rent-tenant").value;
+  const amount = parseFloat(document.getElementById("rent-amount").value);
+  const date = document.getElementById("rent-date").value;
+  const note = document.getElementById("rent-note").value.trim();
+  const errEl = document.getElementById("rent-error");
+
+  if (!tenant) { errEl.textContent = "Pick a tenant."; return; }
+  if (!amount || amount <= 0) { errEl.textContent = "Enter an amount greater than zero."; return; }
+  if (!date) { errEl.textContent = "Pick a date."; return; }
+  errEl.textContent = "";
+
+  state.rentPayments.unshift({ id: uid(), tenant, amount, date, note });
+  saveLS(LS_KEYS.rentPayments, state.rentPayments);
+
+  rentFormDefaults = { tenant, date };
+  const d = parseLocalDate(date);
+  state.selMonth = d.getMonth();
+  state.selYear = d.getFullYear();
+  render();
+}
+
+function deleteRent(id) {
+  state.rentPayments = state.rentPayments.filter((r) => r.id !== id);
+  saveLS(LS_KEYS.rentPayments, state.rentPayments);
+  render();
+}
+
+function updateBudget(cat, value) {
+  const val = value === "" ? 0 : parseFloat(value);
+  state.budgets[cat] = val;
+  saveLS(LS_KEYS.budgets, state.budgets);
+}
+
+function updateBalance(acc, value) {
+  const val = value === "" ? "" : parseFloat(value);
+  state.openingBalances[acc] = val;
+  saveLS(LS_KEYS.openingBalances, state.openingBalances);
+}
+
+function renameTenant(index, newName) {
+  const trimmed = newName.trim();
+  if (!trimmed) return;
+  const oldName = state.tenantNames[index];
+  if (oldName === trimmed) return;
+  state.tenantNames[index] = trimmed;
+  state.rentPayments = state.rentPayments.map((r) => r.tenant === oldName ? { ...r, tenant: trimmed } : r);
+  if (rentFormDefaults.tenant === oldName) rentFormDefaults.tenant = trimmed;
+  saveLS(LS_KEYS.tenantNames, state.tenantNames);
+  saveLS(LS_KEYS.rentPayments, state.rentPayments);
+  render();
+}
+
+function exportBackup() {
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    transactions: state.transactions,
+    openingBalances: state.openingBalances,
+    budgets: state.budgets,
+    rentPayments: state.rentPayments,
+    tenantNames: state.tenantNames,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const stamp = todayStr();
+  a.href = url;
+  a.download = `tracker-backup-${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importBackupFile(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (!data || typeof data !== "object") throw new Error("bad file");
+      state.transactions = Array.isArray(data.transactions) ? data.transactions : [];
+      state.openingBalances = data.openingBalances && typeof data.openingBalances === "object" ? data.openingBalances : {};
+      state.budgets = data.budgets && typeof data.budgets === "object" ? data.budgets : DEFAULT_BUDGETS;
+      state.rentPayments = Array.isArray(data.rentPayments) ? data.rentPayments : [];
+      state.tenantNames = Array.isArray(data.tenantNames) && data.tenantNames.length === 5 ? data.tenantNames : [...TENANTS];
+      saveLS(LS_KEYS.transactions, state.transactions);
+      saveLS(LS_KEYS.openingBalances, state.openingBalances);
+      saveLS(LS_KEYS.budgets, state.budgets);
+      saveLS(LS_KEYS.rentPayments, state.rentPayments);
+      saveLS(LS_KEYS.tenantNames, state.tenantNames);
+      render();
+      alert("Backup restored successfully.");
+    } catch (e) {
+      alert("That file couldn't be read. Make sure it's a backup downloaded from this tracker.");
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ---------- Rendering ----------
+function render() {
+  document.querySelectorAll(".tab-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.tab === state.tab);
+  });
+  const TAB_BG = { overview: "#EAF7F2", budgets: "#F1EEFF", balances: "#FCECE0", tenants: "#EAF3FA" };
+  document.body.style.backgroundColor = TAB_BG[state.tab] || "#FBE8ED";
+  const content = document.getElementById("content");
+  if (state.tab === "overview") content.innerHTML = renderOverview();
+  else if (state.tab === "budgets") content.innerHTML = renderBudgets();
+  else if (state.tab === "balances") content.innerHTML = renderBalances();
+  else content.innerHTML = renderTenants();
+  attachContentListeners();
+}
+
+function periodSelectorHTML(includeMonth) {
+  const monthPart = includeMonth ? `
+    <select class="month-select" id="monthSelect">
+      ${MONTH_NAMES.map((m, i) => `<option value="${i}" ${i === state.selMonth ? "selected" : ""}>${m}</option>`).join("")}
+    </select>` : "";
+  return `
+    <div class="period-left">
+      ${monthPart}
+      <div class="year-box">
+        <button class="year-arrow" id="yearPrev">‹</button>
+        <input type="number" class="year-input" id="yearInput" value="${state.selYear}" />
+        <button class="year-arrow" id="yearNext">›</button>
+      </div>
+    </div>`;
+}
+
+function renderOverview() {
+  const scoped = getScopedTx();
+  const totals = totalsOf(scoped);
+  const sorted = [...scoped].sort((a, b) => parseLocalDate(b.date) - parseLocalDate(a.date));
+  const chartData = state.view === "year" ? yearlyChartData() : monthlyChartData();
+  const maxVal = Math.max(1, ...chartData.flatMap((d) => [d.income, d.expense]));
+  const categoryOptions = Array.from(new Set([
+    ...(txFormDefaults.type === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES),
+  ]));
+
+  return `
+    <div class="period-row">
+      ${periodSelectorHTML(state.view === "month")}
+      <div class="view-toggle">
+        <button class="view-btn ${state.view === "month" ? "active" : ""}" data-view="month">Monthly</button>
+        <button class="view-btn ${state.view === "year" ? "active" : ""}" data-view="year">Yearly</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="type-toggle">
+        <button class="type-btn expense ${txFormDefaults.type === "expense" ? "active" : ""}" data-type="expense">− Expense</button>
+        <button class="type-btn income ${txFormDefaults.type === "income" ? "active" : ""}" data-type="income">+ Income</button>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Category</label>
+          <select id="tx-category">${categoryOptions.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("")}</select>
+        </div>
+        <div class="field">
+          <label>Account</label>
+          <select id="tx-account">${ACCOUNTS.map((a) => `<option value="${esc(a)}" ${a === txFormDefaults.account ? "selected" : ""}>${esc(a)}</option>`).join("")}</select>
+        </div>
+        <div class="field">
+          <label>Money used</label>
+          <select id="tx-moneyUsed">${MONEY_USED_OPTIONS.map((m) => `<option value="${esc(m)}" ${m === txFormDefaults.moneyUsed ? "selected" : ""}>${esc(m)}</option>`).join("")}</select>
+        </div>
+        <div class="field">
+          <label>Amount</label>
+          <input type="number" step="any" id="tx-amount" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="tx-date" value="${txFormDefaults.date}" />
+        </div>
+        <div class="field">
+          <label>Note (optional)</label>
+          <input id="tx-note" placeholder="Anything to remember" />
+        </div>
+      </div>
+      <div style="display:flex; justify-content:flex-end;">
+        <button class="btn-add" id="addTxBtn">+ Add</button>
+      </div>
+      <p class="error-text" id="tx-error"></p>
+    </div>
+
+    <div class="totals-row">
+      <div><div class="stat-label">Income</div><div class="stat-value" style="color:#1E8F71">${fmt(totals.income)}</div></div>
+      <div><div class="stat-label">Expenses</div><div class="stat-value" style="color:#E2703A">${fmt(totals.expense)}</div></div>
+      <div><div class="stat-label">Net</div><div class="stat-value" style="color:#7C4DFF">${fmt(totals.net)}</div></div>
+    </div>
+
+    <div style="margin-bottom:32px;">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <h2 class="section-head">${state.view === "year" ? "Income vs expenses — by year" : `Income vs expenses — ${state.selYear}`}</h2>
+        <div class="legend">
+          <span><span class="swatch" style="background:#1E8F71"></span>Income</span>
+          <span><span class="swatch" style="background:#E2703A"></span>Expense</span>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        ${chartData.map((d) => `
+          <div class="chart-col">
+            <div class="chart-bars">
+              <div class="chart-bar" title="Income: ${fmt(d.income)}" style="height:${Math.max(2, (d.income / maxVal) * 120)}px; background:#1E8F71;"></div>
+              <div class="chart-bar" title="Expense: ${fmt(d.expense)}" style="height:${Math.max(2, (d.expense / maxVal) * 120)}px; background:#E2703A;"></div>
+            </div>
+            <div class="chart-month-label">${state.view === "year" ? d.name : d.name.slice(0, 3)}</div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+
+    <div>
+      <h2 class="section-head">Entries ${state.view === "month" ? `— ${MONTH_NAMES[state.selMonth]} ${state.selYear}` : `— ${state.selYear}`}</h2>
+      ${sorted.length === 0 ? `<p class="muted">Nothing logged yet. Add your first entry above.</p>` : sorted.map((t) => `
+        <div class="entry-row">
+          <div class="entry-date">${parseLocalDate(t.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}</div>
+          <div class="entry-main">
+            <div class="entry-cat">${esc(t.category)}</div>
+            <div class="entry-sub">${esc(t.account)} · ${esc(t.moneyUsed)}${t.note ? " · " + esc(t.note) : ""}</div>
+          </div>
+          <div class="entry-amt" style="color:${t.type === "income" ? "#1E8F71" : "#E2703A"}">${t.type === "income" ? "+" : "−"}${fmt(t.amount)}</div>
+          <button class="del-btn" data-del-tx="${t.id}">🗑</button>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderBudgets() {
+  const monthTx = getMonthTx();
+  const cats = Array.from(new Set([...Object.keys(state.budgets), ...EXPENSE_CATEGORIES]));
+  const rows = cats.map((cat) => {
+    const actual = monthTx.filter((t) => t.type === "expense" && t.category === cat).reduce((s, t) => s + t.amount, 0);
+    const budget = state.budgets[cat] || 0;
+    return { category: cat, budget, actual, remaining: budget - actual };
+  });
+  const totalBudget = rows.reduce((s, r) => s + r.budget, 0);
+  const totalActual = rows.reduce((s, r) => s + r.actual, 0);
+  const totalRemaining = totalBudget - totalActual;
+
+  return `
+    <div class="period-row" style="margin-bottom:20px;">
+      ${periodSelectorHTML(true)}
+    </div>
+    <h2 class="section-head">Budget vs actual — ${MONTH_NAMES[state.selMonth]} ${state.selYear}</h2>
+    <div class="table-head col-budget">
+      <div>Category</div><div class="ta-r">Budget</div><div class="ta-r">Spent</div><div class="ta-r">Remaining</div>
+    </div>
+    ${rows.map((r) => {
+      const pct = r.budget > 0 ? Math.min(100, (r.actual / r.budget) * 100) : 0;
+      const over = r.actual > r.budget && r.budget > 0;
+      return `
+        <div class="budget-row-wrap">
+          <div class="col-budget" style="display:grid; align-items:center; font-size:13px;">
+            <div>${esc(r.category)}</div>
+            <div class="ta-r"><input type="number" step="any" class="budget-input" data-budget-cat="${esc(r.category)}" value="${state.budgets[r.category] ?? ""}" /></div>
+            <div class="ta-r">${fmt(r.actual)}</div>
+            <div class="ta-r" style="font-weight:600; color:${over ? "#E2703A" : "#1E8F71"}">${over ? `over by ${fmt(Math.abs(r.remaining))}` : fmt(r.remaining)}</div>
+          </div>
+          <div class="budget-progress"><div class="budget-progress-fill" style="width:${pct}%; background:${over ? "#E2703A" : "#1E8F71"}"></div></div>
+        </div>
+      `;
+    }).join("")}
+    <div class="col-budget" style="display:grid; padding:10px 0; font-size:13px; font-weight:700;">
+      <div>Total</div>
+      <div class="ta-r">${fmt(totalBudget)}</div>
+      <div class="ta-r">${fmt(totalActual)}</div>
+      <div class="ta-r" style="color:${totalRemaining < 0 ? "#E2703A" : "#1E8F71"}">${fmt(totalRemaining)}</div>
+    </div>
+    <p class="muted" style="font-size:12.5px;">Edit any budget amount directly in the table — it saves automatically.</p>
+  `;
+}
+
+function renderBalances() {
+  const accountBalances = ACCOUNTS.map((acc) => {
+    const opening = typeof state.openingBalances[acc] === "number" ? state.openingBalances[acc] : 0;
+    let income = 0, expense = 0;
+    state.transactions.forEach((t) => { if (t.account === acc) { if (t.type === "income") income += t.amount; else expense += t.amount; } });
+    return { account: acc, opening, income, expense, current: opening + income - expense };
+  });
+  const netWorth = accountBalances.reduce((s, a) => s + a.current, 0);
+
+  let allIncome = 0, allExpense = 0;
+  state.transactions.forEach((t) => { if (t.type === "income") allIncome += t.amount; else allExpense += t.amount; });
+  const overall = { count: state.transactions.length, income: allIncome, expense: allExpense, net: allIncome - allExpense };
+
+  const moneyUsedAll = MONEY_USED_OPTIONS.map((tag) => {
+    const rows = state.transactions.filter((t) => t.moneyUsed === tag);
+    let income = 0, expense = 0;
+    rows.forEach((t) => { if (t.type === "income") income += t.amount; else expense += t.amount; });
+    return { tag, count: rows.length, income, expense, net: income - expense };
+  });
+
+  const monthTx = getMonthTx();
+  const moneyUsedMonthly = MONEY_USED_OPTIONS.map((tag) => {
+    const rows = monthTx.filter((t) => t.moneyUsed === tag);
+    let income = 0, expense = 0;
+    rows.forEach((t) => { if (t.type === "income") income += t.amount; else expense += t.amount; });
+    return { tag, count: rows.length, income, expense, net: income - expense };
+  });
+
+  return `
+    <h2 class="section-head">Opening balances & current standing</h2>
+    <p class="muted" style="font-size:13px; margin-top:-6px; margin-bottom:16px;">
+      Set what each account held before you started logging here. Current balance updates automatically from your entries.
+    </p>
+    <div style="margin-bottom:32px;">
+      <div class="table-head col-acct">
+        <div>Account</div><div class="ta-r">Opening</div><div class="ta-r">Income</div><div class="ta-r">Expense</div><div class="ta-r">Current</div>
+      </div>
+      ${accountBalances.map((a) => `
+        <div class="table-row col-acct" style="display:grid; align-items:center;">
+          <div>${esc(a.account)}</div>
+          <div class="ta-r"><input type="number" step="any" class="balance-input" data-balance-acc="${esc(a.account)}" value="${state.openingBalances[a.account] ?? ""}" placeholder="0" /></div>
+          <div class="ta-r" style="color:#1E8F71">${a.income ? fmt(a.income) : "—"}</div>
+          <div class="ta-r" style="color:#E2703A">${a.expense ? fmt(a.expense) : "—"}</div>
+          <div class="ta-r" style="font-weight:700;">${fmt(a.current)}</div>
+        </div>
+      `).join("")}
+      <div class="col-acct" style="display:grid; padding:12px 0; font-size:14px; font-weight:700;">
+        <div>Total net worth</div><div></div><div></div><div></div>
+        <div class="ta-r" style="color:#7C4DFF;">${fmt(netWorth)}</div>
+      </div>
+    </div>
+
+    <h2 class="section-head">Summary of transactions</h2>
+    <div class="totals-row four">
+      <div><div class="stat-label">All entries</div><div class="stat-value">${overall.count}</div></div>
+      <div><div class="stat-label">Total income</div><div class="stat-value" style="color:#1E8F71">${fmt(overall.income)}</div></div>
+      <div><div class="stat-label">Total expense</div><div class="stat-value" style="color:#E2703A">${fmt(overall.expense)}</div></div>
+      <div><div class="stat-label">Net position</div><div class="stat-value" style="color:#7C4DFF">${fmt(overall.net)}</div></div>
+    </div>
+
+    <h3 class="section-head" style="font-size:15px;">By money used</h3>
+    <div class="table-head col-5">
+      <div>Source</div><div class="ta-r">Entries</div><div class="ta-r">Income</div><div class="ta-r">Expense</div><div class="ta-r">Net</div>
+    </div>
+    ${moneyUsedAll.map((m) => `
+      <div class="table-row col-5">
+        <div>${esc(m.tag)}</div><div class="ta-r">${m.count}</div>
+        <div class="ta-r" style="color:#1E8F71">${m.income ? fmt(m.income) : "—"}</div>
+        <div class="ta-r" style="color:#E2703A">${m.expense ? fmt(m.expense) : "—"}</div>
+        <div class="ta-r" style="font-weight:600;">${fmt(m.net)}</div>
+      </div>
+    `).join("")}
+
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-top:28px; margin-bottom:10px;">
+      <h3 class="section-head" style="font-size:15px; margin:0;">By money used — monthly</h3>
+      ${periodSelectorHTML(true)}
+    </div>
+    <div class="table-head col-5">
+      <div>Source</div><div class="ta-r">Entries</div><div class="ta-r">Income</div><div class="ta-r">Expense</div><div class="ta-r">Net</div>
+    </div>
+    ${moneyUsedMonthly.map((m) => `
+      <div class="table-row col-5">
+        <div>${esc(m.tag)}</div><div class="ta-r">${m.count}</div>
+        <div class="ta-r" style="color:#1E8F71">${m.income ? fmt(m.income) : "—"}</div>
+        <div class="ta-r" style="color:#E2703A">${m.expense ? fmt(m.expense) : "—"}</div>
+        <div class="ta-r" style="font-weight:600;">${fmt(m.net)}</div>
+      </div>
+    `).join("")}
+  `;
+}
+
+function renderTenants() {
+  const monthPayments = state.rentPayments.filter((r) => {
+    const d = parseLocalDate(r.date);
+    return d.getFullYear() === state.selYear && d.getMonth() === state.selMonth;
+  });
+  const yearPayments = state.rentPayments.filter((r) => parseLocalDate(r.date).getFullYear() === state.selYear);
+
+  const byTenant = state.tenantNames.map((tenant) => ({
+    tenant,
+    monthTotal: monthPayments.filter((r) => r.tenant === tenant).reduce((s, r) => s + r.amount, 0),
+    yearTotal: yearPayments.filter((r) => r.tenant === tenant).reduce((s, r) => s + r.amount, 0),
+    allTimeTotal: state.rentPayments.filter((r) => r.tenant === tenant).reduce((s, r) => s + r.amount, 0),
+  }));
+  const totals = {
+    month: monthPayments.reduce((s, r) => s + r.amount, 0),
+    year: yearPayments.reduce((s, r) => s + r.amount, 0),
+    allTime: state.rentPayments.reduce((s, r) => s + r.amount, 0),
+  };
+  const sorted = [...state.rentPayments].sort((a, b) => parseLocalDate(b.date) - parseLocalDate(a.date));
+
+  return `
+    <p class="muted" style="font-size:13px; margin-top:-6px; margin-bottom:20px;">
+      Log rent as it comes in from each tenant — date, amount, and any note. Totals below update automatically.
+    </p>
+
+    <div class="card">
+      <div class="grid2">
+        <div class="field">
+          <label>Tenant</label>
+          <select id="rent-tenant">${state.tenantNames.map((t) => `<option value="${esc(t)}" ${t === rentFormDefaults.tenant ? "selected" : ""}>${esc(t)}</option>`).join("")}</select>
+        </div>
+        <div class="field">
+          <label>Amount</label>
+          <input type="number" step="any" id="rent-amount" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="rent-date" value="${rentFormDefaults.date}" />
+        </div>
+        <div class="field">
+          <label>Note (optional)</label>
+          <input id="rent-note" placeholder="e.g. Sept rent, paid by UPI" />
+        </div>
+      </div>
+      <div style="display:flex; justify-content:flex-end;">
+        <button class="btn-add" id="addRentBtn">+ Add</button>
+      </div>
+      <p class="error-text" id="rent-error"></p>
+    </div>
+
+    <div class="period-row" style="margin-bottom:16px;">
+      <h2 class="section-head" style="margin:0;">Rent by tenant</h2>
+      ${periodSelectorHTML(true)}
+    </div>
+
+    <div class="table-head col-rent">
+      <div>Tenant</div><div class="ta-r">${MONTH_NAMES[state.selMonth].slice(0,3)} ${state.selYear}</div><div class="ta-r">${state.selYear} total</div><div class="ta-r">All time</div>
+    </div>
+    ${byTenant.map((r) => `
+      <div class="table-row col-rent">
+        <div>${esc(r.tenant)}</div>
+        <div class="ta-r">${r.monthTotal ? fmt(r.monthTotal) : "—"}</div>
+        <div class="ta-r">${r.yearTotal ? fmt(r.yearTotal) : "—"}</div>
+        <div class="ta-r" style="font-weight:600;">${r.allTimeTotal ? fmt(r.allTimeTotal) : "—"}</div>
+      </div>
+    `).join("")}
+    <div class="col-rent" style="display:grid; padding:10px 0; font-size:13px; font-weight:700;">
+      <div>Total</div>
+      <div class="ta-r" style="color:#1E8F71;">${fmt(totals.month)}</div>
+      <div class="ta-r" style="color:#1E8F71;">${fmt(totals.year)}</div>
+      <div class="ta-r" style="color:#7C4DFF;">${fmt(totals.allTime)}</div>
+    </div>
+
+    <div class="card" style="margin-top:28px;">
+      <h3 class="section-head" style="font-size:14px;">Tenant names</h3>
+      <p class="muted" style="font-size:12px; margin:-4px 0 10px;">Rename any tenant below — it updates everywhere, including past entries.</p>
+      <div class="grid2">
+        ${state.tenantNames.map((name, i) => `
+          <div class="field">
+            <label>Tenant ${i + 1}</label>
+            <input type="text" data-tenant-idx="${i}" value="${esc(name)}" />
+          </div>
+        `).join("")}
+      </div>
+    </div>
+
+    <div style="margin-top:28px;">
+      <h2 class="section-head">All rent entries</h2>
+      ${sorted.length === 0 ? `<p class="muted">No rent logged yet. Add your first payment above.</p>` : sorted.map((r) => `
+        <div class="entry-row">
+          <div class="entry-date">${parseLocalDate(r.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}</div>
+          <div class="entry-main">
+            <div class="entry-cat">${esc(r.tenant)}</div>
+            ${r.note ? `<div class="entry-sub">${esc(r.note)}</div>` : ""}
+          </div>
+          <div class="entry-amt" style="color:#1E8F71;">+${fmt(r.amount)}</div>
+          <button class="del-btn" data-del-rent="${r.id}">🗑</button>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+// ---------- Event delegation ----------
+function attachContentListeners() {
+  const content = document.getElementById("content");
+
+  const monthSel = document.getElementById("monthSelect");
+  if (monthSel) monthSel.addEventListener("change", (e) => { setPeriod(Number(e.target.value), undefined); });
+
+  const yearPrev = document.getElementById("yearPrev");
+  const yearNext = document.getElementById("yearNext");
+  const yearInput = document.getElementById("yearInput");
+  if (yearPrev) yearPrev.addEventListener("click", () => { setPeriod(undefined, state.selYear - 1); });
+  if (yearNext) yearNext.addEventListener("click", () => { setPeriod(undefined, state.selYear + 1); });
+  if (yearInput) yearInput.addEventListener("change", (e) => { if (e.target.value !== "") setPeriod(undefined, Number(e.target.value)); });
+
+  content.querySelectorAll(".view-btn").forEach((btn) => {
+    btn.addEventListener("click", () => { state.view = btn.dataset.view; render(); });
+  });
+
+  content.querySelectorAll(".type-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      txFormDefaults.type = btn.dataset.type;
+      document.querySelectorAll(".type-btn.expense").forEach((b) => b.classList.toggle("active", btn.dataset.type === "expense"));
+      document.querySelectorAll(".type-btn.income").forEach((b) => b.classList.toggle("active", btn.dataset.type === "income"));
+      const categoryOptions = txFormDefaults.type === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+      const catSelect = document.getElementById("tx-category");
+      if (catSelect) catSelect.innerHTML = categoryOptions.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+    });
+  });
+
+  const addTxBtn = document.getElementById("addTxBtn");
+  if (addTxBtn) addTxBtn.addEventListener("click", addTransaction);
+
+  const txDate = document.getElementById("tx-date");
+  if (txDate) txDate.addEventListener("change", (e) => {
+    txFormDefaults.date = e.target.value;
+    if (e.target.value) {
+      const d = parseLocalDate(e.target.value);
+      state.selMonth = d.getMonth();
+      state.selYear = d.getFullYear();
+      render();
+    }
+  });
+
+  content.querySelectorAll("[data-del-tx]").forEach((btn) => {
+    btn.addEventListener("click", () => deleteTransaction(btn.dataset.delTx));
+  });
+
+  content.querySelectorAll("[data-budget-cat]").forEach((input) => {
+    input.addEventListener("change", (e) => { updateBudget(input.dataset.budgetCat, e.target.value); render(); });
+  });
+
+  content.querySelectorAll("[data-balance-acc]").forEach((input) => {
+    input.addEventListener("change", (e) => { updateBalance(input.dataset.balanceAcc, e.target.value); render(); });
+  });
+
+  const addRentBtn = document.getElementById("addRentBtn");
+  if (addRentBtn) addRentBtn.addEventListener("click", addRent);
+
+  const rentDate = document.getElementById("rent-date");
+  if (rentDate) rentDate.addEventListener("change", (e) => {
+    rentFormDefaults.date = e.target.value;
+    if (e.target.value) {
+      const d = parseLocalDate(e.target.value);
+      state.selMonth = d.getMonth();
+      state.selYear = d.getFullYear();
+      render();
+    }
+  });
+
+  content.querySelectorAll("[data-del-rent]").forEach((btn) => {
+    btn.addEventListener("click", () => deleteRent(btn.dataset.delRent));
+  });
+
+  content.querySelectorAll("[data-tenant-idx]").forEach((input) => {
+    input.addEventListener("change", (e) => { renameTenant(Number(input.dataset.tenantIdx), e.target.value); });
+  });
+}
+
+// ---------- Top-level wiring ----------
+document.querySelectorAll(".tab-btn").forEach((btn) => {
+  btn.addEventListener("click", () => { state.tab = btn.dataset.tab; render(); });
+});
+
+document.getElementById("exportBtn").addEventListener("click", exportBackup);
+document.getElementById("restoreBtn").addEventListener("click", () => document.getElementById("restoreFile").click());
+document.getElementById("restoreFile").addEventListener("change", (e) => {
+  if (e.target.files && e.target.files[0]) importBackupFile(e.target.files[0]);
+  e.target.value = "";
+});
+
+render();
+</script>
+</body>
+</html>
